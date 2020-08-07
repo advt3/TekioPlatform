@@ -1,19 +1,34 @@
+import cv2
+import io
 import socket
+import struct
+import time
+import pickle
+import zlib
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect(('127.0.0.1', 8485))
+connection = client_socket.makefile('wb')
+
+cam = cv2.VideoCapture('../Datasets/crosswalk.avi')
+
+cam.set(3, 320);
+cam.set(4, 240);
+
+img_counter = 0
+
+encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+
+while True:
+    ret, frame = cam.read()
+    result, frame = cv2.imencode('.jpg', frame, encode_param)
+#    data = zlib.compress(pickle.dumps(frame, 0))
+    data = pickle.dumps(frame, 0)
+    size = len(data)
 
 
-class Client:
-    buffer_size = 1024
+    print("{}: {}".format(img_counter, size))
+    client_socket.sendall(struct.pack(">L", size) + data)
+    img_counter += 1
 
-    def __init__(self):
-        self._udp_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-
-    def send(self, message: str, address: str, port: int):
-        message_bytes = str.encode(message)
-        self._udp_socket.sendto(message_bytes, (address, port))
-        response = self._udp_socket.recvfrom(self.buffer_size)
-        print('response', response[0].decode())
-
-
-if __name__ == '__main__':
-    c = Client()
-    c.send('Whats up', '127.0.0.1', 50101)
+cam.release()

@@ -1,26 +1,43 @@
 import socket
+import sys
+import cv2
+import pickle
+import numpy as np
+import struct ## new
+import zlib
 
+HOST='127.0.0.1'
+PORT=8485
 
-class Server:
-    ip_address = '127.0.0.1'
-    local_port = 50101
-    buffer_size = 1024
-    _response = str.encode('received')
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+print('Socket created')
 
-    def __init__(self):
-        self._udp_server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self._udp_server_socket.bind((self.ip_address, self.local_port))
+s.bind((HOST,PORT))
+print('Socket bind complete')
+s.listen(10)
+print('Socket now listening')
 
-    def start(self):
-        print('Server Ready')
-        while True:
-            bytes_pair = self._udp_server_socket.recvfrom(self.buffer_size)
-            message = bytes_pair[0]
-            client_address = bytes_pair[1]
-            print('Message:', message.decode(), ' Client Address', client_address)
-            self._udp_server_socket.sendto(self._response, client_address)
+conn,addr=s.accept()
 
+data = b""
+payload_size = struct.calcsize(">L")
+print("payload_size: {}".format(payload_size))
+while True:
+    while len(data) < payload_size:
+        print("Recv: {}".format(len(data)))
+        data += conn.recv(4096)
 
-if __name__ == '__main__':
-    s = Server()
-    s.start()
+    print("Done Recv: {}".format(len(data)))
+    packed_msg_size = data[:payload_size]
+    data = data[payload_size:]
+    msg_size = struct.unpack(">L", packed_msg_size)[0]
+    print("msg_size: {}".format(msg_size))
+    while len(data) < msg_size:
+        data += conn.recv(4096)
+    frame_data = data[:msg_size]
+    data = data[msg_size:]
+
+    frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
+    frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+    cv2.imshow('ImageWindow',frame)
+    cv2.waitKey(1)
