@@ -37,7 +37,7 @@ while True:
     frame_data = data[:msg_size]
     data = data[msg_size:]
 
-    frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
+    frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
     cv2.imshow('ImageWindow',frame)
     cv2.waitKey(1)
