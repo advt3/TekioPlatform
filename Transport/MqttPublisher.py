@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import paho.mqtt.client as mqtt
+import paho.mqtt.properties as mqttp
 
 
 # This is the Publisher
@@ -23,5 +24,5 @@ class Publisher:
 
 
 if __name__ == "__main__":
-    with Publisher("topic/test") as p:
-        p.send_message("hi whats the context for you, are you connected?")
+    with Publisher("topic/video") as p:
+        p.send_message("eof")

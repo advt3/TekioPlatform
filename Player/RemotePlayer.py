@@ -5,12 +5,18 @@ import numpy as np
 
 
 def show_image(client, userdata, msg):
-    frame = msg.payload
-    frame = base64.b64decode(frame)
-    frame = np.frombuffer(frame, dtype=np.uint8)
-    cv2.imdecode(frame, flags=1)
-    cv2.imshow('Remote Player', frame)
-    cv2.waitKey(1)
+    if len(msg.payload) < 4:
+        if msg.payload.decode() == 'eof':
+            cv2.destroyAllWindows()
+        else:
+            print('message received', msg.payload)
+    else:
+        frame = msg.payload
+        frame = base64.b64decode(frame)
+        frame = np.frombuffer(frame, dtype=np.uint8)
+        frame = cv2.imdecode(frame, flags=1)
+        cv2.imshow('Remote Player', frame)
+        cv2.waitKey(30)
     pass
 
 
