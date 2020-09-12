@@ -15,11 +15,12 @@ def show_image(client, userdata, msg):
         frame = base64.b64decode(frame)
         frame = np.frombuffer(frame, dtype=np.uint8)
         frame = cv2.imdecode(frame, flags=1)
+        #flipped = cv2.flip(frame, -1)
         cv2.imshow('Remote Player', frame)
         cv2.waitKey(30)
     pass
 
 
 if __name__ == '__main__':
-    with Subscriber(show_image, 'topic/video') as s:
+    with Subscriber(show_image, 'topic/video','192.168.1.29') as s:
         s.subscribe()

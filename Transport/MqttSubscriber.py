@@ -19,6 +19,7 @@ class Subscriber:
 
     def __init__(self, on_message_callback, topic: str, hostname: str = "localhost", port: int = 1883):
         client = mqtt.Client()
+        print(hostname)
         client.connect(hostname, port, 60)
         client.on_connect = self._on_connect
         client.on_message = on_message_callback
