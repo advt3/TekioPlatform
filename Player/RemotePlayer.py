@@ -20,7 +20,9 @@ def show_image(client, userdata, msg):
         cv2.waitKey(30)
     pass
 
-
-if __name__ == '__main__':
+def execute():
     with Subscriber(show_image, 'topic/video','192.168.1.29') as s:
         s.subscribe()
+
+if __name__ == '__main__':
+    execute()
